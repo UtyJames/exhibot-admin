@@ -2,9 +2,13 @@ import React from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { DollarSign, TrendingUp } from 'lucide-react';
 import { ChartData } from '../../types';
-import { revenueData } from '../../data/mockData';
 
-const RevenueChart: React.FC = () => {
+interface RevenueChartProps {
+  revenueData: ChartData[];
+  totalRevenue: number;
+}
+
+const RevenueChart: React.FC<RevenueChartProps> = ({ revenueData, totalRevenue }) => {
   const formatCurrency = (value: number): string => {
     if (value >= 1000000) {
       return `₦${(value / 1000000).toFixed(1)}M`;
@@ -43,7 +47,7 @@ const RevenueChart: React.FC = () => {
   };
 
   const growth = calculateGrowth();
-  const totalRevenue = revenueData.reduce((sum, item) => sum + item.value, 0);
+  const averageMonthlyRevenue = revenueData.reduce((sum, item) => sum + item.value, 0) / revenueData.length;
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-6">
@@ -58,7 +62,7 @@ const RevenueChart: React.FC = () => {
         </div>
         <div className="text-right">
           <p className="text-2xl font-bold text-black">
-            ₦{(totalRevenue / revenueData.length).toLocaleString()}
+            ₦{(averageMonthlyRevenue).toLocaleString()}
           </p>
           <p className={`text-sm font-medium flex items-center gap-1 ${growth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
             <TrendingUp className={`w-4 h-4 ${growth >= 0 ? 'text-green-600' : 'text-red-600'}`} />
@@ -120,13 +124,13 @@ const RevenueChart: React.FC = () => {
         <div className="text-center">
           <p className="text-xs text-gray-600 mb-1">Average Monthly</p>
           <p className="text-sm font-semibold text-black">
-            {formatCurrency(totalRevenue / revenueData.length)}
+            {formatCurrency(averageMonthlyRevenue)}
           </p>
         </div>
         <div className="text-center">
-          <p className="text-xs text-gray-600 mb-1">Peak Revenue</p>
+          <p className="text-xs text-gray-600 mb-1">Total Revenue</p>
           <p className="text-sm font-semibold text-black">
-            {formatCurrency(Math.max(...revenueData.map(item => item.value)))}
+            {formatCurrency(totalRevenue)}
           </p>
         </div>
       </div>

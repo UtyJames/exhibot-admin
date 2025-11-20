@@ -1,10 +1,13 @@
 import React from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Users, TrendingUp, UserPlus } from 'lucide-react';
+import { Users, TrendingUp } from 'lucide-react';
 import { ChartData } from '../../types';
-import { userGrowthData } from '../../data/mockData';
 
-const UserGrowthChart: React.FC = () => {
+interface UserGrowthChartProps {
+  data: ChartData[];
+}
+
+const UserGrowthChart: React.FC<UserGrowthChartProps> = ({ data = [] }) => {
   const formatNumber = (value: number): string => {
     if (value >= 1000) {
       return `${(value / 1000).toFixed(0)}k`;
@@ -14,22 +17,13 @@ const UserGrowthChart: React.FC = () => {
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
-      const currentValue = payload[0].value;
-      const previousValue = userGrowthData.find(item => item.name === label)?.value || 0;
-      const growth = previousValue > 0 ? ((currentValue - previousValue) / previousValue) * 100 : 0;
-
       return (
         <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-lg">
           <p className="text-sm font-semibold text-gray-900 mb-2">{label}</p>
           <div className="space-y-1">
             <p className="text-sm text-gray-600">
-              Total Users: <span className="font-semibold text-black">{currentValue.toLocaleString()}</span>
+              New Users: <span className="font-semibold text-black">{payload[0].value.toLocaleString()}</span>
             </p>
-            {growth !== 0 && (
-              <p className={`text-xs font-medium ${growth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {growth >= 0 ? '↑' : '↓'} {Math.abs(growth).toFixed(1)}% from previous
-              </p>
-            )}
           </div>
         </div>
       );
@@ -37,17 +31,22 @@ const UserGrowthChart: React.FC = () => {
     return null;
   };
 
-  // Calculate growth metrics
+  // Calculate metrics from data
   const calculateMetrics = () => {
-    const totalUsers = userGrowthData[userGrowthData.length - 1]?.value || 0;
-    const newUsersThisMonth = userGrowthData[userGrowthData.length - 1]?.value - (userGrowthData[userGrowthData.length - 2]?.value || 0);
-    const totalGrowth = ((userGrowthData[userGrowthData.length - 1]?.value - userGrowthData[0]?.value) / userGrowthData[0]?.value) * 100;
-    const averageMonthlyGrowth = totalGrowth / (userGrowthData.length - 1);
+    if (data.length === 0) {
+      return { totalUsers: 0, totalGrowth: 0, averageMonthlyGrowth: 0 };
+    }
 
-    return { totalUsers, newUsersThisMonth, totalGrowth, averageMonthlyGrowth };
+    const totalUsers = data.reduce((sum, item) => sum + item.value, 0);
+    const totalGrowth = data.length > 1 
+      ? ((data[data.length - 1].value - data[0].value) / data[0].value) * 100 
+      : 0;
+    const averageMonthlyGrowth = totalGrowth / (data.length - 1);
+
+    return { totalUsers, totalGrowth, averageMonthlyGrowth };
   };
 
-  const { totalUsers, newUsersThisMonth, totalGrowth, averageMonthlyGrowth } = calculateMetrics();
+  const { totalUsers, totalGrowth, averageMonthlyGrowth } = calculateMetrics();
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-6">
@@ -71,7 +70,7 @@ const UserGrowthChart: React.FC = () => {
 
       {/* Chart */}
       <ResponsiveContainer width="100%" height={300}>
-        <AreaChart data={userGrowthData} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+        <AreaChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
           <defs>
             <linearGradient id="userGrowthGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
@@ -114,50 +113,24 @@ const UserGrowthChart: React.FC = () => {
       {/* Growth Metrics */}
       <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-gray-100">
         <div className="text-center">
-          <div className="flex items-center justify-center gap-1 mb-1">
-            <UserPlus className="w-4 h-4 text-blue-600" />
-            <p className="text-xs text-gray-600">New This Month</p>
-          </div>
-          <p className="text-lg font-bold text-black">+{newUsersThisMonth}</p>
+          <p className="text-xs text-gray-600 mb-1">Current Month</p>
+          <p className="text-sm font-semibold text-black">
+            {data.length > 0 ? data[data.length - 1].value.toLocaleString() : 0}
+          </p>
         </div>
         <div className="text-center">
-          <p className="text-xs text-gray-600 mb-1">Avg. Monthly Growth</p>
-          <p className="text-lg font-bold text-black">+{averageMonthlyGrowth.toFixed(1)}%</p>
+          <p className="text-xs text-gray-600 mb-1">Average Monthly</p>
+          <p className="text-sm font-semibold text-black">
+            {totalUsers > 0 ? Math.round(totalUsers / data.length).toLocaleString() : 0}
+          </p>
         </div>
         <div className="text-center">
           <p className="text-xs text-gray-600 mb-1">Peak Growth</p>
-          <p className="text-lg font-bold text-black">
-            +{Math.max(...userGrowthData.map((item, index) => {
-              if (index === 0) return 0;
-              const prev = userGrowthData[index - 1].value;
-              return ((item.value - prev) / prev) * 100;
-            })).toFixed(1)}%
+          <p className="text-sm font-semibold text-black">
+            {Math.max(...data.map(item => item.value)).toLocaleString()}
           </p>
         </div>
       </div>
-
-      {/* Monthly Breakdown */}
-      {/* <div className="mt-4">
-        <h4 className="text-sm font-semibold text-black mb-3">Monthly Performance</h4>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {userGrowthData.slice(-6).map((month, index, array) => {
-            const growth = index > 0 ? 
-              ((month.value - array[index - 1].value) / array[index - 1].value) * 100 : 0;
-            
-            return (
-              <div key={month.name} className="text-center p-2 bg-gray-50 rounded-lg">
-                <p className="text-xs text-gray-600 mb-1">{month.name}</p>
-                <p className="text-sm font-semibold text-black">{month.value}</p>
-                {index > 0 && (
-                  <p className={`text-xs font-medium ${growth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {growth >= 0 ? '+' : ''}{growth.toFixed(1)}%
-                  </p>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div> */}
     </div>
   );
 };

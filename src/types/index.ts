@@ -44,6 +44,8 @@ export interface StatCardProps {
   value: string | number;
   change?: string;
   trend?: 'up' | 'down' | 'neutral';
+  icon?: React.ReactNode;
+  onClick?: () => void;
 }
 
 export interface SearchBarProps {
@@ -51,7 +53,6 @@ export interface SearchBarProps {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
-
 export interface SidebarProps {
   currentPage: string;
   setCurrentPage: (page: string) => void;
@@ -59,6 +60,13 @@ export interface SidebarProps {
   setIsOpen: (isOpen: boolean) => void;
 }
 
+// Add this interface if it doesn't exist
+export interface MenuItem {
+  id: string;
+  icon: React.ComponentType<any>;
+  label: string;
+  badge?: number;
+}
 export interface HeaderProps {
   setSidebarOpen: (isOpen: boolean) => void;
   title: string;
@@ -66,7 +74,37 @@ export interface HeaderProps {
 }
 
 // Add these to your existing types
-export type UserFilterType = 'all' | 'with-bracelet' | 'without-bracelet' | 'issues';
+// export type UserFilterType = 'all' | 'with-bracelet' | 'without-bracelet' | 'issues';
 export type OrderFilterType = 'all' | 'pending' | 'processing' | 'shipped' | 'delivered';
 
 // Add page-specific prop type
+
+export interface User {
+  _id: string;
+  email: string;
+  userName: string;
+  name: string;
+  profilePic: string;
+  created_at: string;
+  token?: string; // Add token field
+}
+export interface AuthContextType {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (email: string) => Promise<void>;
+  verifyOTP: (email: string, otp: string) => Promise<void>;
+  resendOTP: (email: string) => Promise<void>;
+  logout: () => void;
+}
+
+// src/types/index.ts - Update UsersTableProps
+export interface UsersTableProps {
+  searchQuery?: string;
+  filter?: UserFilterType;
+  onUserSelect: (user: any) => void;
+  limit?: number;
+  onUsersUpdate?: (count: number) => void;
+}
+
+export type UserFilterType = 'all' | 'active' | 'inactive' | 'completed' | 'incomplete';

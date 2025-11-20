@@ -1,3 +1,4 @@
+// src/components/common/SearchBar.tsx
 import React from 'react';
 import { Search } from 'lucide-react';
 import { SearchBarProps } from '../../types';
@@ -11,7 +12,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder, value, onChange }) =
         placeholder={placeholder}
         value={value}
         onChange={onChange}
-        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
       />
     </div>
   );
