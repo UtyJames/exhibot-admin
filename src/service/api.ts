@@ -1,13 +1,29 @@
 // src/services/api.ts
-const API_BASE_URL = 'https://tap-4lzu.onrender.com/api/v1';
+export const API_BASE_URL = 'https://tap-4lzu.onrender.com/api/v1';
 
 // Simple API service without authentication
-const getHeaders = () => ({
-  'Content-Type': 'application/json',
-  'Accept': 'application/json',
-});
+export const getHeaders = () => {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
+  
+  const savedUser = localStorage.getItem('exhiibot_user');
+  if (savedUser) {
+    try {
+      const { token } = JSON.parse(savedUser);
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+    } catch (e) {
+      console.error('Error parsing user for token', e);
+    }
+  }
 
-const handleResponse = async (response: Response) => {
+  return headers;
+};
+
+export const handleResponse = async (response: Response) => {
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Unknown error' }));
     throw new Error(error.message || `API request failed with status ${response.status}`);

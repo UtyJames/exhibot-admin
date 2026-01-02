@@ -2,4 +2,13 @@ import './index.css';
 import React from "react";
 import { render } from "react-dom";
 import App from "./App"
-render(<App />, document.getElementById("root"));
+import { ToastProvider } from './context/ToastContext';
+
+render(
+    <React.StrictMode>
+        <ToastProvider>
+            <App />
+        </ToastProvider>
+    </React.StrictMode>,
+    document.getElementById("root")
+);

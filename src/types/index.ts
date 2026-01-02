@@ -108,3 +108,26 @@ export interface UsersTableProps {
 }
 
 export type UserFilterType = 'all' | 'active' | 'inactive' | 'completed' | 'incomplete';
+
+export interface ReferralApplication {
+  _id: string;
+  user: User | string;
+  fullName: string;
+  socialMediaHandle: string;
+  platform: string;
+  audienceSize: number;
+  reason: string;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+  updated_at: string;
+  adminNotes?: string;
+  reviewedAt?: string;
+  reviewedBy?: User | string;
+}
+
+export interface ReviewApplicationPayload {
+  status: 'approved' | 'rejected';
+  adminNotes?: string;
+  approvedCode?: string;
+  discountPercentage?: number;
+}
