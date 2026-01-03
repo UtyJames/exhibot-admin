@@ -123,6 +123,8 @@ export interface ReferralApplication {
   adminNotes?: string;
   reviewedAt?: string;
   reviewedBy?: User | string;
+  approvedCode?: string;
+  discountPercentage?: number;
 }
 
 export interface ReviewApplicationPayload {

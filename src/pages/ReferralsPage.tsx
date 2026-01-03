@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, X, FileText, Trash2, Wand2 } from 'lucide-react';
+import { Trophy, X, FileText, Trash2, Wand2, Eye } from 'lucide-react';
 import SearchBar from '../components/common/SearchBar';
 import { Referrer, ReferralApplication, ReviewApplicationPayload } from '../types';
 import { referralsAPI } from '../service/referralsApi';
 import { useToast } from '../context/ToastContext';
 import ConfirmationModal from '../components/common/ConfirmationModal';
+import ReferralDetailsModal from '../components/common/ReferralDetailsModal';
 
 const ReferralsPage: React.FC = () => {
   const { success, error: toastError } = useToast();
@@ -32,6 +33,9 @@ const ReferralsPage: React.FC = () => {
     discountPercentage: 10
   });
   const [isSubmittingReview, setIsSubmittingReview] = useState<boolean>(false);
+
+  // Details Modal State
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState<boolean>(false);
 
   // Confirmation Modal State
   const [confirmationModal, setConfirmationModal] = useState<{
@@ -387,6 +391,18 @@ const ReferralsPage: React.FC = () => {
                     </button>
                   )}
 
+                  {app.status !== 'pending' && (
+                    <button
+                      onClick={() => {
+                        setSelectedApplication(app);
+                        setIsDetailsModalOpen(true);
+                      }}
+                      className="px-3 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+                    >
+                      <Eye className="w-4 h-4" /> View Details
+                    </button>
+                  )}
+
                   {/* Delete/Revoke Button available for all statuses */}
                   <button
                     onClick={(e) => handleDeleteApplication(app._id, e)}
@@ -610,6 +626,16 @@ const ReferralsPage: React.FC = () => {
         message={confirmationModal.message}
         confirmText={confirmationModal.confirmText}
         isDestructive={confirmationModal.isDestructive}
+      />
+
+      {/* Details Modal */}
+      <ReferralDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => {
+          setIsDetailsModalOpen(false);
+          setSelectedApplication(null);
+        }}
+        application={selectedApplication}
       />
     </div>
   );
